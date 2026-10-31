@@ -18,6 +18,7 @@ export default function RootLayout() {
         }}
       >
         <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="chapter/[id]" options={{ title: '' }} />
         <Stack.Screen name="knot/[id]" options={{ title: '' }} />
       </Stack>
     </LearnedProvider>

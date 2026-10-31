@@ -3,6 +3,7 @@ import { useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View, type ScrollViewInstance } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import KnotDiagram from '../../components/KnotDiagram';
+import { chapterOfKnot } from '../../data/chapters';
 import { DIFF_LABEL, findKnot, KNOTS, USE_LABEL } from '../../data/knots';
 import { useLearned } from '../../learned';
 import { mono, useTheme, type Theme } from '../../theme';
@@ -23,7 +24,10 @@ export default function KnotScreen() {
     return <View style={[s.root, s.center]}><Text style={s.body}>找不到這個結。</Text></View>;
   }
   const knot = KNOTS[idx];
-  const nextKnot = KNOTS[idx + 1];
+  // 「下一個」只在同一章內跳；章內最後一個就回章節頁。
+  const siblings = chapterOfKnot(knot.id)?.knots ?? [];
+  const nextId = siblings[siblings.indexOf(knot.id) + 1];
+  const nextKnot = nextId ? KNOTS[findKnot(nextId)] : undefined;
   const st = knot.steps[step];
   const total = knot.steps.length;
   const last = step === total - 1;
@@ -38,9 +42,9 @@ export default function KnotScreen() {
     if (!last) return go(step + 1);
     if (!isLearned) return toggle(knot.id);
     if (nextKnot) router.replace({ pathname: '/knot/[id]', params: { id: nextKnot.id } });
-    else go(0);
+    else router.back();
   };
-  const nextLabel = !last ? '下一步 ›' : !isLearned ? '✓ 我學會了' : nextKnot ? `下一個：${nextKnot.name} ›` : '回到第一步';
+  const nextLabel = !last ? '下一步 ›' : !isLearned ? '✓ 我學會了' : nextKnot ? `下一個：${nextKnot.name} ›` : '回到章節';
 
   return (
     <>
